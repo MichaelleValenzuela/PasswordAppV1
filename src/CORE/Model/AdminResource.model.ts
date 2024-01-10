@@ -5,12 +5,16 @@ const schema = new mongoose.Schema({
         ref: "User",
         type: mongoose.Schema.Types.ObjectId
     },
-
     name_type: String,
-    
+
+    type_encrypt: {
+        type: String,
+        default: 'RFC 7519'
+    },
     fields: [{
-        name_field: String,
-        type_field: String
+        input_name: String,
+        input_type: String,
+        input_atr_name: String
     }]
 });
 export default mongoose.model('AdminResource', schema);

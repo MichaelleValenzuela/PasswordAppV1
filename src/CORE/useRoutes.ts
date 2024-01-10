@@ -5,7 +5,7 @@ import { decodeTokenUser } from "../Helpers/generateHash";
 import { getUsers, desactivateUser, editProfileUser } from "../CORE/Controller/User.controller";
 import { registerUser, confirmAccount, loginUser, recoveryUser, resetPasswordUser } from "../CORE/Controller/Auth.controller";
 import { userCreateResource, userGetResources, userEditResource, userDeleteResource, userGetResourceById } from "../CORE/Controller/UserResource.controller";
-import { adminCreateResource, adminGetResources, adminEditResource, adminDeleteResource } from "../CORE/Controller/AdminResource.controller";
+import { adminCreateResource, adminGetResources, adminEditResource, userGetResourceAdminById, adminDeleteResource, adminChangeTypeEncryptResource } from "../CORE/Controller/AdminResource.controller";
 
 const authMiddleware = (req: any, res: any, next: any) => {
 
@@ -18,7 +18,7 @@ const authMiddleware = (req: any, res: any, next: any) => {
     else {
         JWT.verify(req.headers.usuario_autorizacion, varsConfig.JWT_STR, (err: any, userId: any) => {
             if (err) {
-                res.status(404).json({ ok: false, msg: "El token ha expirado. Vuelva a ingresar para continuar" });
+                res.status(404).json({ isExpired: true, ok: false, msg: "El token ha expirado. Vuelva a ingresar para continuar" });
             } else {
                 req.user = decodeTokenUser(req.headers.usuario_autorizacion);
                 next();
@@ -43,12 +43,14 @@ export const useRoutes = (app: any, router: any): Object => {
         ADMIN_CRETE_RESOURCE: app.use(router.post(`${varsConfig.URI_ADMIN_RESOURCE[0]}`, authMiddleware, adminCreateResource)),
         ADMIN_GET_RESOURCES: app.use(router.get(`${varsConfig.URI_ADMIN_RESOURCE[1]}`, adminGetResources)),
         ADMIN_EDIT_RESOURCE: app.use(router.put(`${varsConfig.URI_ADMIN_RESOURCE[2]}`, authMiddleware, adminEditResource)),
-        ADMIN_DELETE_RESOURCE: app.use(router.delete(`${varsConfig.URI_ADMIN_RESOURCE[3]}`, authMiddleware, adminDeleteResource)),
+        ADMIN_GET_RESOURCE_BY_ID: app.use(router.get(`${varsConfig.URI_ADMIN_RESOURCE[3]}`, authMiddleware, userGetResourceAdminById)),
+        ADMIN_EDIT_TYPE_ENCRYPT_RESOURCE: app.use(router.put(`${varsConfig.URI_ADMIN_RESOURCE[4]}`, authMiddleware, adminChangeTypeEncryptResource)),
+        ADMIN_DELETE_RESOURCE: app.use(router.delete(`${varsConfig.URI_ADMIN_RESOURCE[5]}`, authMiddleware, adminDeleteResource)),
 
         USER_CRETE_RESOURCE: app.use(router.post(`${varsConfig.URI_USER_RESOURCE[0]}`, authMiddleware, userCreateResource)),
         USER_GET_RESOURCES: app.use(router.get(`${varsConfig.URI_USER_RESOURCE[1]}`, userGetResources)),
         USER_GET_RESOURCE_BY_ID: app.use(router.get(`${varsConfig.URI_USER_RESOURCE[2]}`, userGetResourceById)),
         USER_EDIT_RESOURCE: app.use(router.put(`${varsConfig.URI_USER_RESOURCE[3]}`, userEditResource)),
-        USER_DELETE_RESOURCE: app.use(router.delete(`${varsConfig.URI_USER_RESOURCE[4]}`, userDeleteResource)),
+        USER_DELETE_RESOURCE: app.use(router.delete(`${varsConfig.URI_USER_RESOURCE[4]}`, authMiddleware, userDeleteResource)),
     };
 }

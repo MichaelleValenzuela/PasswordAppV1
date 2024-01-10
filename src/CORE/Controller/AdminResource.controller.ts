@@ -75,9 +75,43 @@ export const adminEditResource = async (req: any, res: any) => {
     }
 }
 
-export const adminDeleteResource = async (req: any, res: any) => {
+export const userGetResourceAdminById = async (req: any, res: any) => {
+    await AdminResource.findOne({ _id: req.params.id }).exec().then((data: any) => {
+        if (!data) res.status(404).json({ ok: false, msg: "No record found." })
+        else res.status(201).json({ ok: true, msg: "Data obtained.", data: data })
+    });
+}
 
-    console.log("ELIMINANDO!", req.params.id)
+export const adminChangeTypeEncryptResource = async (req: any, res: any) => {
+
+    const { type_encrypt } = req.body;
+
+    const HEADER: any = decodeTokenUser(req.headers.usuario_autorizacion);
+
+
+    let arr_err: string[] = [];
+
+    if (arr_err.length > 0) {
+        res.status(404).json({ ok: false, errors: arr_err });
+    } else {
+
+        console.log("ACTUALIZANDO :D")
+        // await User.findOne({ _id: HEADER._id, role: 'ADMINISTRADOR' }).exec().then(async (data: any) => {
+        //     if (!data) res.status(404).json({ ok: false, msg: "No se ha encontrado el usuario con ese ID" })
+        //     else {
+        //         fields.forEach((e: any) => delete e._id);
+
+        AdminResource.findOneAndUpdate({ _id: req.params.id }, {
+            type_encrypt: type_encrypt
+        }).exec().then((success: any) => res.status(201).json({ ok: true, msg: "Se ha cambiado el tipo de encriptación" }));
+
+        // }
+        // });
+    }
+}
+
+
+export const adminDeleteResource = async (req: any, res: any) => {
     await AdminResource.findOne({ _id: req.params.id }).exec().then((data: any) => {
         console.log(data)
         if (!data) res.status(404).json({ ok: false, msg: "No record found." })
